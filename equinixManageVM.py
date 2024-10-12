@@ -5,11 +5,6 @@ import argparse
 API_TOKEN = 'your_api_token'  # Replace with your Equinix Metal API token
 BASE_URL = 'https://api.equinix.com/metal/v1'
 
-# Set the headers for the API request, including the Authorization token
-HEADERS = {
-    'X-Auth-Token': API_TOKEN,
-    'Content-Type': 'application/json'
-}
 
 # Mapping of project names to their IDs
 PROJECTS_INFO_DICT = {
@@ -29,6 +24,7 @@ def fetch_devices(api_token, project_id):
         list: A list of devices for the project.
     """
     url = f"{BASE_URL}/projects/{project_id}/devices"
+    
     headers = {
         'X-Auth-Token': api_token,
         'Content-Type': 'application/json'
