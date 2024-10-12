@@ -248,4 +248,3 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     main(args.token, args.project, args.delete, args.skip_do_not_delete_tags)
-
