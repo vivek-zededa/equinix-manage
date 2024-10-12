@@ -1,91 +1,97 @@
 
-# Equinix Metal VM Management Script
+# Equinix VM Management Script
 
-This Python script is designed to manage virtual machines (VMs) on Equinix Metal by interacting with the Equinix Metal API. It can retrieve VM information, calculate their cost, and delete VMs based on user-defined conditions. This script can be executed from Jenkins or from the command line, and it accepts parameters such as the project name and API token.
+This script allows you to manage Equinix Metal VMs by fetching their details, displaying their current states, and optionally deleting them. You can specify a project, skip certain VMs based on tags, and view the total cost incurred by each VM.
 
 ## Features
 
-- Retrieve and list running and stopped VMs within a specified project.
-- Calculate the total cost incurred by individual VMs.
-- Optionally delete VMs, with support for skipping VMs that are tagged with `DO_NOT_DELETE`.
-- Pass API token and project name as command-line parameters for flexibility.
+- Fetch and display all VMs in a specified Equinix project.
+- Display VM details such as name, ID, state, owner, tags, and total cost.
+- Optionally delete VMs, with the ability to skip VMs tagged as `DO_NOT_DELETE`.
+- Print VM details in a formatted table for easy viewing.
 
 ## Requirements
 
 - Python 3.x
-- `requests` library
-
-You can install the `requests` library by running:
-```bash
-pip install requests
-```
+- The `requests` library (can be installed via `pip install requests`)
+- An Equinix Metal API token
 
 ## Usage
 
-The script can be run directly from the command line or integrated into a Jenkins job. Here are the instructions for both use cases:
+### Command-line Arguments
 
-### Command-Line Usage
+- `--token`: **(Required)** The API token for Equinix Metal.
+- `--project`: **(Required)** The name of the project to manage VMs.
+- `--delete`: **(Optional)** Flag to trigger deletion of VMs.
+- `--skip-do-not-delete-tags`: **(Optional)** Flag to skip deletion of VMs with the tag `DO_NOT_DELETE`.
 
-1. Clone or download the script.
+### Example Usage
 
-2. Run the script with the following parameters:
-   - `--token`: Your Equinix Metal API token.
-   - `--project`: The name of the project you want to manage (e.g., `Zededa Test` or `Zededa Development`).
-
-   Example:
-   ```bash
-   python manage_vms.py --token "your_api_token" --project "Zededa Test"
-   ```
-
-### Parameters
-
-- `--token`: The API token for authenticating with Equinix Metal.
-- `--project`: The name of the project where the VMs are hosted.
-
-### Example
+To fetch and display all VMs in the `Zededa Test` project:
 
 ```bash
-python manage_vms.py --token "qy2ugN8KaaD22ht9DtvDf2pCxYtx3oiL" --project "Zededa Test"
+python3 equinixManageVM.py --token your_api_token --project "Zededa Test"
 ```
 
-### Jenkins Integration
+To fetch VMs and delete them (excluding those tagged as `DO_NOT_DELETE`):
 
-You can integrate this script into a Jenkins pipeline or freestyle job as follows:
+```bash
+python3 equinixManageVM.py --token your_api_token --project "Zededa Test" --delete --skip-do-not-delete-tags
+```
 
-1. Create a Jenkins job that executes shell commands.
-2. Pass the required parameters (`--token`, `--project`) as Jenkins parameters.
-3. Add the following command in your Jenkins job:
+To force delete all VMs in the project:
+
+```bash
+python3 equinixManageVM.py --token your_api_token --project "Zededa Test" --delete
+```
+
+### Scheduled Execution (Jenkins Cron)
+
+You can use this script in a Jenkins job and schedule it to run automatically (e.g., every Friday at 10 PM IST) by using the following cron expression in Jenkins:
+
+```
+0 16 * * 5
+```
+
+## Setup
+
+1. Clone the repository and navigate to the directory:
    ```bash
-   python manage_vms.py --token "$API_TOKEN" --project "$PROJECT_NAME"
+   git clone https://github.com/vivek-zededa/equinix-manage.git
+   cd equinix-manage
    ```
 
-### Error Handling
+2. Install the required dependencies:
+   ```bash
+   pip3 install -r requirements.txt
+   ```
 
-- If an invalid project name is provided, the script will print an error message.
-- If there is an issue with the API request (e.g., invalid token or API server issues), the script will print the appropriate error message and continue to the next operation.
+3. Execute the script using the appropriate arguments (see [Usage](#usage)).
 
-## Functions
+## Project IDs
 
-### `manage_equinix_vms(api_token, project_id, delete=True, skip_do_not_delete_tag=True)`
+The project names and their corresponding IDs are stored in a dictionary inside the script. You can modify the following mapping to add your own projects:
 
-Fetch and manage Equinix VMs for a given project. Optionally, it can delete VMs based on the `delete` flag and can skip VMs tagged with `DO_NOT_DELETE`.
+```python
+PROJECTS_INFO_DICT = {
+    'Zededa Test': 'e6df9343-8781-4f27-b942-8f9675d5e0e7',
+    'Zededa Development': 'ce48ed95-821d-4f9e-89d5-330f7ee52ba4'
+}
+```
 
-### `fetch_devices(api_token, project_id)`
+## How It Works
 
-Fetch all devices (VMs) for a given project.
+1. **Fetching VMs:** The script makes an API call to Equinix Metal using the provided project ID and retrieves all devices (VMs) in that project.
+   
+2. **Displaying VMs:** It prints a formatted table with VM details, including the name, state, owner, tags, and cost.
+   
+3. **VM Deletion (Optional):** If the `--delete` flag is set, the script attempts to delete VMs. If the `--skip-do-not-delete-tags` flag is also set, it skips any VM tagged with `DO_NOT_DELETE`.
 
-### `fetch_equinix_vm_cost(api_token, project_id, vm_name)`
+## Notes
 
-Fetch total cost incurred for a specific VM within the specified project.
-
-### `delete_equinix_vm(api_token, vm_id)`
-
-Delete a VM using its ID.
-
-### `print_vm_info(vm, total_vm_cost)`
-
-Print detailed information about a specific VM, including its name, state, owner, tags, and cost incurred.
+- Ensure your API token has the necessary permissions to perform delete operations if you use the `--delete` flag.
+- Handle your API token securely (avoid hardcoding it into scripts or committing it to version control). Use environment variables or Jenkins credentials management for security.
 
 ## License
 
-This script is distributed under the MIT License.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
