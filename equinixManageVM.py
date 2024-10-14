@@ -92,40 +92,7 @@ def delete_equinix_vm(api_token, vm_id):
     except Exception as e:
         print(f"An error occurred during deletion: {str(e)}")
 
-
 def print_vms_info(vms_info):
-    """
-    Print information about multiple VMs in a single table.
-
-    Parameters:
-        vms_info (list): A list of dictionaries with VM information and their total cost.
-    """
-    # Define headers
-    headers = ["VM Name", "VM ID", "Current State", "Owner", "Tags", "Total Cost ($)"]
-
-    # Collect data rows for each VM
-    data = []
-    for vm, total_vm_cost in vms_info:
-        data.append([
-            vm.get('hostname', 'N/A'),
-            vm.get('id', 'N/A'),
-            vm.get('state', 'N/A'),
-            vm['created_by'].get('full_name', 'Unknown Owner'),
-            ', '.join(vm['tags']) if vm.get('tags') else 'No tags',
-            f"{total_vm_cost:.2f}"
-        ])
-
-    # Print table headers
-    print(
-        f"{headers[0]:<20} | {headers[1]:<20} | {headers[2]:<15} | {headers[3]:<20} | {headers[4]:<30} | {headers[5]:<15}")
-    print("-" * 130)
-
-    # Print table rows
-    for row in data:
-        print(f"{row[0]:<20} | {row[1]:<20} | {row[2]:<15} | {row[3]:<20} | {row[4]:<30} | {row[5]:<15}")
-
-
-def print_vms_info1(vms_info):
     """
     Print information about multiple VMs in a single table.
 
@@ -166,7 +133,7 @@ def print_vms_info1(vms_info):
         ]
         print(" | ".join(f"{str(item):<{col_widths[i]}}" for i, item in enumerate(row)))
 
-
+    print("\n\n")
 
 
 def should_delete_vm(vm, skip_do_not_delete_tag):
@@ -207,7 +174,7 @@ def manage_equinix_vms(api_token, project_id, delete=False, skip_do_not_delete_t
             vms_info_list.append((vm, total_vm_cost))
 
         # Print all VM details in a table
-        print_vms_info1(vms_info_list)
+        print_vms_info(vms_info_list)
 
         # Handle deletion based on the delete flag and 'DO_NOT_DELETE' tag
         if delete:
