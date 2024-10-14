@@ -101,6 +101,7 @@ def print_vms_info(vms_info):
     """
     # Define headers
     headers = ["VM Name", "VM ID", "Current State", "Owner", "Tags", "Total Cost ($)"]
+    print("\n\n")
 
     # Ensure there are VMs to display
     if not vms_info:
